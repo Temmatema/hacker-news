@@ -1,26 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {useEffect, useState} from 'react';
+import Header from "./components/header/Header";
+import {IStories} from "./types/stories";
+import {getRequest} from "./api/api";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
+import Home from "./Pages/Home";
+import StoryPage from "./Pages/StoryPage";
+import {Context} from "./context/context";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [stories, setStories] = useState<IStories[]>([]);
+    const [isHome, setIsHome] = useState<boolean>(true);
+
+
+    useEffect(() => {
+        getRequest("getStories", setStories).catch(er => console.log(er));
+
+        const interval = setInterval(() => {
+            getRequest("updateStories", setStories).catch(er => console.log(er));
+        }, 60000);
+
+        return () => {
+            clearInterval(interval);
+        }
+    }, []);
+
+
+    return (
+        <Context.Provider value={
+            {isHome, setIsHome}
+        }>
+            <BrowserRouter>
+                <Header setStories={setStories}/>
+                <Routes>
+                    <Route path="/" element={<Home stories={stories} setStories={setStories}/>}/>
+                    <Route path="/page/:id" element={<StoryPage/>}/>
+                </Routes>
+            </BrowserRouter>
+        </Context.Provider>
+    );
 }
 
 export default App;

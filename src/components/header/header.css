@@ -1,0 +1,15 @@
+.header {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.header__wrap {
+    display: flex;
+    gap: 30px;
+}
+
+.header__title {
+    color: white;
+}
